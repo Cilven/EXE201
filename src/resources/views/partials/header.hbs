@@ -1,0 +1,71 @@
+<nav class="navbar navbar-expand-lg navbar-dark shadow-sm">
+  <div class="container-fluid">
+<img class="logo" src="/img/Logo.png" alt="logo" />
+
+    <a class="navbar-brand" href="/">JoyfulBox</a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+      aria-controls="navbarNav"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="/" data-page="home">Trang chủ</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/product/productShow" data-page="product">Sản phẩm</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/custom-gifts/gift" data-page="custom-gifts">Tạo hộp quà</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/about" data-page="about">Giới thiệu</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/contact" data-page="contact">Liên hệ</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/cart" data-page="cart">
+            <i class="fas fa-shopping-cart"></i>
+            <div class="cart-summary"></div>
+          </a>
+        </li>
+        <li>
+          <div style="color: red;" id="cart-count">{{cartCount}}</div>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/account" data-page="account">Đăng nhập</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/account/logout">Logout</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const currentPath = window.location.pathname;
+    
+    document.querySelectorAll(".nav-link").forEach(link => {
+      const page = link.getAttribute("data-page");
+
+      if (
+        (page === "custom-gifts" && currentPath.startsWith("/custom-gifts")) ||
+        (page === "product" && currentPath.startsWith("/product")) ||
+        link.getAttribute("href") === currentPath
+      ) {
+        link.classList.add("active");
+      }
+    });
+  });
+</script>
+

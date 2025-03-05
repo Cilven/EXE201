@@ -1,0 +1,418 @@
+<div class=" mt-5">
+    <h1 class="text-center mb-4">Tạo hộp quà của bạn</h1>
+
+    <ul class=" container nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a class="nav-link" id="step1-tab" data-bs-toggle="tab" href="/custom-gifts/gift">Hướng dẫn</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link " id="step1-tab" data-bs-toggle="tab" href="/custom-gifts">Bước 1: Chọn sản phẩm</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link " id="step2-tab" data-bs-toggle="tab" href="/custom-gifts/box">Bước 2: Chọn Hộp quà
+                tặng</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" id="step3-tab" data-bs-toggle="tab" href="/custom-gifts/mes">Bước 3: Thêm tin
+                nhắn cá nhân</a>
+        </li>
+    </ul>
+
+    <div class="container tab-content">
+        <!-- Tab 2 -->
+        <div class="tab-pane fade show active" id="step3">
+            <h3>Thêm tin nhắn cá nhân</h3>
+
+            <!-- Chọn mẫu thư bằng hình ảnh -->
+            <div class="mb-3">
+                <h5>Chọn mẫu thư:</h5>
+                <p class="template-price">Giá: 5.000VND</p>
+
+                <div class="d-flex flex-wrap">
+                    {{#if mess.length}}
+                    {{#each mess}}
+                    <div class="card m-2" style="width: 150px;" onclick="selectTemplate('{{this._id}}')">
+                        <img src="{{this.image}}" class="card-img-top selected-template" id="{{this._id}}"
+                            alt="{{this.name}}">
+
+                    </div>
+                    {{/each}}
+                    {{else}}
+                    <p>Thiệp đang hết trong kho</p>
+                    {{/if}}
+
+
+
+
+                </div>
+            </div>
+
+            <!-- Ô nhập tin nhắn cá nhân -->
+            <textarea class="form-control custom-message" rows="4" id="personal-message"
+                placeholder="Viết tin nhắn của bạn ở đây..."></textarea>
+
+            <div class="text-center mt-3">
+                <a href="/custom-gifts/box">
+                    <button class="btn btn-secondary next" onclick="goToStep(2)">Bước trước</button>
+
+                </a>
+                <button class="btn btn-success next" onclick="showConfirmation()">Gửi quà tặng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Modal Xác nhận -->
+<div class="modal" id="confirmationModal">
+
+    <div class="modal-content">
+
+        <h5 class="modal-title" id="confirmationModalLabel">🎁 Gửi quà tặng!</h5>
+
+
+
+
+        <div id="modal-message">
+            <p><strong>Sản phẩm đã chọn:</strong></p>
+            <ul id="selected-products-list"></ul>
+
+            <p><strong>Hộp quà:</strong> <span id="selected-box">Chưa chọn</span> </p>
+            <p><strong>Thiệp:</strong> <span id="selected-card">Chưa chọn</span></p>
+            <p><strong>Tin nhắn cá nhân:</strong> <span id="selected-message">Không có</span></p>
+            <p><strong>Mẫu thiệp đã chọn:</strong></p>
+            <img id="selected-card-img" src="https://i.ytimg.com/vi/jRnBvlMUvK0/maxresdefault.jpg" alt="Thiệp đã chọn"
+                style="width: 150px; border: 1px solid #ddd;">
+
+            <p><strong> <br>Tổng số tiền:</strong> <span id="total-price">0 VND</span></p>
+        </div>
+
+
+
+        <button type="button" data-dismiss="modal" class="btn btn-secondary" style="margin: 5px;">Đóng</button>
+        <button type="button" id="add-to-cart-btn" class="btn btn-primary checkout-btn" {{!-- data-bs-toggle="modal"
+            --}} data-bs-target="#paymentModal" style="margin: 5px;">Tiến hành thanh toán</button>
+
+
+    </div>
+</div>
+
+
+
+
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentModalLabel">Chọn phương thức thanh toán</h5>
+
+            </div>
+            <div class="modal-body">
+                <p>Chọn phương thức thanh toán bạn muốn:</p>
+                <div class="d-flex justify-content-around mt-4">
+                    <div id="qrBtn" class="payment-option">
+                        <img src="./906232d07a04c25a9b15.jpg" alt="QR Code" style="width: 50px;">
+                        <p>QR Code</p>
+                    </div>
+                    <div id="cashBtn" class="payment-option">
+                        <i class="fas fa-money-bill-alt fa-2x"></i>
+                        <p>Thanh toán khi nhận hàng</p>
+                    </div>
+                </div>
+
+                <!-- QR Code Payment Option -->
+                <div id="qrSection" class="text-center">
+                    <p>Quét mã QR để hoàn tất thanh toán:</p>
+                    <img src="./906232d07a04c25a9b15.jpg" alt="QR Code" class="img-fluid mx-auto d-block"
+                        style="max-width: 200px;">
+                </div>
+
+
+
+
+                <!-- Cash on Delivery Form -->
+                <form id="cashForm" class="mt-4" method="POST" action="/custom-gifts/payment">
+                    <input type="hidden" id="selectedProductsInput" name="selectedProducts">
+                    <input type="hidden" id="selectedBoxInput" name="selectedBox">
+                    <input type="hidden" id="selectedCardInput" name="selectedCard">
+                    <input type="hidden" id="personalMessageInput" name="personalMessage">
+                    <input type="hidden" id="totalPriceInput" name="totalPrice">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Tên</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Số điện thoại</label>
+                        <input type="tel" class="form-control" id="phone" name="phone" required pattern="[0-9]{10}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Địa chỉ</label>
+                        <input type="text" class="form-control" id="address" name="address" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 mt-3">Xác nhận đơn hàng</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+<script>
+// 🏷️ Chuyển số thành "10.000" (KHÔNG có ₫)
+function formatCurrency(value) {
+    return new Intl.NumberFormat("vi-VN").format(value);
+}
+
+// 🔢 Chuyển "10.000" về số nguyên (10000) để tính toán
+function parseCurrency(value) {
+    return parseInt(value.replace(/[^\d]/g, ""), 10) || 0; // Loại bỏ ký tự không phải số
+}
+
+// 📌 Cập nhật giá tiền hiển thị trên giao diện
+document.querySelectorAll(".price-display").forEach(priceElement => {
+    let price = parseCurrency(priceElement.textContent); 
+    priceElement.textContent = formatCurrency(price);
+});
+
+// 🏷️ Cập nhật tổng tiền
+function updateTotalPrice() {
+    let totalPrice = 0;
+    
+    document.querySelectorAll(".selected-product").forEach(item => {
+        let price = parseCurrency(item.dataset.price);
+        let quantity = parseInt(item.dataset.quantity, 10) || 1;
+        totalPrice += price * quantity;
+    });
+
+document.getElementById("total-price").textContent = formatCurrency(totalPrice);
+}
+
+// Gọi cập nhật tổng tiền
+updateTotalPrice();
+
+
+
+
+    document.getElementById('add-to-cart-btn').addEventListener('click', function () {
+        var paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
+        paymentModal.show();
+    });
+
+    // Toggle between QR code and Cash on Delivery sections
+    document.getElementById("qrBtn").addEventListener("click", function () {
+        document.getElementById("qrSection").style.display = "block";
+        document.getElementById("cashForm").style.display = "none";
+        this.classList.add("selected");
+        document.getElementById("cashBtn").classList.remove("selected");
+    });
+
+    document.getElementById("cashBtn").addEventListener("click", function () {
+        document.getElementById("cashForm").style.display = "block";
+        document.getElementById("qrSection").style.display = "none";
+        this.classList.add("selected");
+        document.getElementById("qrBtn").classList.remove("selected");
+    });
+
+
+
+    function selectTemplate(templateId) {
+        document.querySelectorAll('.selected-template').forEach(img => {
+            img.classList.remove('selected');
+            img.style.border = 'none';
+        });
+
+        const selectedImage = document.getElementById(templateId);
+        selectedImage.classList.add('selected');
+        selectedImage.style.border = '2px solid #007bff';
+
+        // Lưu URL và thông tin thiệp vào sessionStorage
+        const selectedCardData = { id: templateId, image: selectedImage.src, name: selectedImage.alt };
+        sessionStorage.setItem("selectedCard", JSON.stringify(selectedCardData));
+    }
+
+
+
+    // 🛒 Lưu sản phẩm đã chọn vào sessionStorage
+    function saveSelectedProducts(items) {
+        sessionStorage.setItem("selectedProducts", JSON.stringify(items));
+    }
+
+    function getSelectedProducts() {
+        return JSON.parse(sessionStorage.getItem("selectedProducts")) || [];
+    }
+
+    function updateSelectedProducts(productId, name, price, quantity) {
+        let selectedProducts = getSelectedProducts();
+
+        const existingProductIndex = selectedProducts.findIndex(item => item.productId === productId);
+        if (existingProductIndex !== -1) {
+            selectedProducts[existingProductIndex].quantity = quantity;
+        } else {
+            selectedProducts.push({ productId, name, price, quantity });
+        }
+
+        saveSelectedProducts(selectedProducts);
+    }
+
+    // 🎁 Lưu hộp quà đã chọn
+    function saveSelectedGiftBox(name, price) {
+        const selectedBox = { name, price };
+        sessionStorage.setItem("selectedGiftBox", JSON.stringify(selectedBox));
+    }
+
+    function getSelectedGiftBox() {
+        return JSON.parse(sessionStorage.getItem("selectedGiftBox")) || null;
+    }
+
+    function updateSelectedGiftBox(name, price) {
+        document.getElementById("selected-box").textContent = name ? `${name} - ${price} VND` : "Chưa chọn";
+        saveSelectedGiftBox(name, price);
+    }
+
+
+
+
+    // ✉️ Lưu thiệp đã chọn
+    function saveSelectedCard(cardId, cardName, cardImage) {
+        const selectedCard = { id: cardId, name: cardName, image: cardImage };
+        sessionStorage.setItem("selectedCard", JSON.stringify(selectedCard));
+    }
+
+    function getSelectedCard() {
+        return JSON.parse(sessionStorage.getItem("selectedCard")) || null;
+    }
+
+    // Khi người dùng chọn thiệp
+    function updateSelectedCard(cardId, cardName, cardImage) {
+        document.getElementById("selected-card").textContent = cardName ? cardName : "Chưa chọn";
+        document.getElementById("selected-card-img").src = cardImage;
+        saveSelectedCard(cardId, cardName, cardImage);
+    }
+
+
+    // 📝 Lưu tin nhắn cá nhân
+    function savePersonalMessage(message) {
+        sessionStorage.setItem("personalMessage", message);
+    }
+
+    function getPersonalMessage() {
+        return sessionStorage.getItem("personalMessage") || "Không có";
+    }
+
+    document.getElementById("personal-message").addEventListener("input", (event) => {
+        savePersonalMessage(event.target.value);
+    });
+
+
+
+
+    // 🛍️ Hiển thị thông tin trong modal xác nhận
+    function showConfirmation() {
+        let modal = new bootstrap.Modal(document.getElementById("confirmationModal"));
+
+       
+    const selectedProducts = getSelectedProducts();
+    const productList = document.getElementById("selected-products-list");
+    productList.innerHTML = selectedProducts.length === 0 ? "<li>Chưa có sản phẩm nào được chọn.</li>" : "";
+
+    let totalPrice = 0;
+    selectedProducts.forEach(product => {
+       const price = Number(product.price.toString().replace(/\./g, "")) || 0;
+const total = Number(product.quantity) * price;
+
+        totalPrice += total;
+console.log("Giá từ product.price:", product.price);
+console.log("Kiểu dữ liệu của product.price:", typeof product.price);
+        productList.innerHTML += `<li>${product.name} - Số lượng: ${product.quantity} - Tổng: ${formatCurrency(total)}</li>`;
+    });
+
+
+
+
+
+        // Hiển thị hộp quà
+      const selectedBox = getSelectedGiftBox();
+
+const price = selectedBox ? Number(selectedBox.price.replace(/\./g, "")) : 0;
+document.getElementById("selected-box").textContent = selectedBox ? `${selectedBox.name} - ${price}` : "Chưa chọn";
+
+totalPrice += price;
+
+        // Hiển thị thiệp
+        const selectedCard = JSON.parse(sessionStorage.getItem("selectedCard")) || null;
+        if (selectedCard) {
+    document.getElementById("selected-card").textContent = `${selectedCard.name} - ${formatCurrency(5000)}`;
+            document.getElementById("selected-card-img").src = selectedCard.image;
+            totalPrice += 5000;
+        } else {
+            document.getElementById("selected-card").textContent = "Chưa chọn";
+            document.getElementById("selected-card-img").src = "https://i.ytimg.com/vi/jRnBvlMUvK0/maxresdefault.jpg"; // Ảnh mặc định
+        }
+        document.getElementById("selected-message").textContent = getPersonalMessage();
+        document.getElementById("total-price").textContent = `${formatCurrency(totalPrice)}`;
+
+        modal.show();
+    }
+
+    // ⏩ Gọi khi nhấn nút "Gửi quà tặng"
+    document.querySelector(".btn-success.next").addEventListener("click", showConfirmation);
+
+
+    document.getElementById("cashForm").addEventListener("submit", function () {
+        // Lấy dữ liệu từ sessionStorage
+        const selectedProducts = sessionStorage.getItem("selectedProducts") || "[]";
+        const selectedBox = sessionStorage.getItem("selectedGiftBox") || "{}";
+        const selectedCard = sessionStorage.getItem("selectedCard") || "{}";
+        const personalMessage = sessionStorage.getItem("personalMessage") || "";
+        let totalPrice = parseInt(sessionStorage.getItem("totalPrice")) || 0;
+
+        // Cộng thêm giá của thiệp (nếu có)
+        if (selectedCard !== "{}") {
+            totalPrice += 5000;
+        }
+
+        // Gán dữ liệu vào input hidden
+        document.getElementById("selectedProductsInput").value = selectedProducts;
+        document.getElementById("selectedBoxInput").value = selectedBox;
+        document.getElementById("selectedCardInput").value = selectedCard;
+        document.getElementById("personalMessageInput").value = personalMessage;
+        document.getElementById("totalPriceInput").value = totalPrice;
+
+
+        sessionStorage.removeItem("selectedProducts");
+        sessionStorage.removeItem("selectedGiftBox");
+        sessionStorage.removeItem("selectedCard");
+        sessionStorage.removeItem("personalMessage");
+        sessionStorage.removeItem("totalPrice");
+    });
+
+    window.addEventListener("beforeunload", function () {
+        if (!window.location.href.includes("/custom-gifts")) {
+            console.log("Người dùng rời khỏi trang custom-gifts -> Xóa sessionStorage");
+            sessionStorage.removeItem("selectedProducts");
+            sessionStorage.removeItem("selectedGiftBox");
+            sessionStorage.removeItem("selectedCard");
+            sessionStorage.removeItem("personalMessage");
+            sessionStorage.removeItem("totalPrice");
+        }
+    });
+
+
+
+</script>
