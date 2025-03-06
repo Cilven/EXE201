@@ -14,6 +14,13 @@ function route(app) {
     app.use('/account', loginRouter);
     app.use('/cart', cartRouter);
     app.use('/custom-gifts', customGiftRouter);
+    app.get('/custom-gifts', (req, res) => {
+        res.render('customProduct'); // Không cần .hbs vì đã cấu hình template engine
+    });
+    
+    app.get('/custom-gifts/box', (req, res) => {
+        res.render('customBox'); // Không cần .hbs vì đã cấu hình template engine
+    });
     app.use('/about', aboutRouter); // Đưa lên trên
     app.use('/contact', contactRouter); // Đưa lên trên
     app.use('/', siteRouter); // Để route '/' sau cùng
